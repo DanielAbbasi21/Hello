@@ -11,12 +11,12 @@ const [results] = await con.execute(sql, args)
 // Print the resultset
 console.log(results)
 
-// Print resultset in table, need to format the date
+// // Print resultset in table, need to format the date
 // const user = results[0]
 // const formattedUser = {
-//   ...user,
-//   created_at: user.created_at.toISOString(),
-//   updated_at: user.updated_at.toISOString()
+// ...user,
+// created_at: user.created_at.toISOString(),
+//    updated_at: user.updated_at.toISOString()
 // }
 
 // console.table(formattedUser)
