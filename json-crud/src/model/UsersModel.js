@@ -32,6 +32,24 @@ class UsersModel {
     return await databaseService.query(query)
   }
 
+  //Get user by id
+  async getUserById (id) {
+  const query = 'SELECT * FROM user WHERE id = ?'
+  return await databaseService.query(query, [id])
+}
+
+  //Search for user
+  async getUsersBySearchString (searchStr) {
+    const query = "SELECT * FROM user WHERE username LIKE ? OR email LIKE ?"
+    const users = await databaseService.query(query, [
+      `%${searchStr}%`,
+      `%${searchStr}%`
+    ])
+    return users
+  }
+
+
+
   /**
    * Add a new user to the database.
    *

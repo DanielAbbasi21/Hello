@@ -32,9 +32,29 @@ class UsersController {
    * @async
    */
   async getAllUsers (req, res, next) {
-    const users = await usersModel.getAllUsers()
-    res.json(users)
+  const searchString = req.query.search
+
+  if (searchString) {
+    const users = await usersModel.getUsersBySearchString(searchString)
+    return res.json(users)
   }
+
+  const users = await usersModel.getAllUsers()
+  res.json(users)
+}
+
+
+  //Show single user
+  async getUserById (req, res, next) {
+  const users = await usersModel.getUserById(req.userId)
+
+  if (users.length === 0) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+
+  res.json(users[0])
+}
+
 
   /**
    * Add a new user to the database.
