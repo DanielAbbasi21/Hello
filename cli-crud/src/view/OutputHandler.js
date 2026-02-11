@@ -13,6 +13,13 @@ class OutputHandler {
     console.table(users)
   }
 
+  //show single user.
+  showUser (user) {
+  console.table([user])
+}
+
+
+
   /**
    * Display a success message.
    *

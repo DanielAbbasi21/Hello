@@ -20,6 +20,26 @@ class UsersController {
       outputHandler.showError('Could not fetch users.')
     }
   }
+  /**
+   * Show a single user by ID by fetching data from the model and displaying it via the output handler.
+   *
+   * @async
+   * @param {number} id - The ID of the user to fetch.
+   */
+  async showUserById (id) {
+    try {
+      const user = await usersModel.getUserById(id)
+
+      if (!user) {
+        return outputHandler.showError(`No user found with ID ${id}.`)
+      }
+
+      outputHandler.showUser(user)
+    } catch (error) {
+      outputHandler.showError('Could not fetch user.', error)
+    }
+  }
+
 
   /**
    * Add a new user to the database.

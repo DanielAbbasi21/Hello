@@ -32,6 +32,19 @@ class UsersModel {
     return result.insertId
   }
 
+  //Show a single user by id
+
+  async getUserById (id) {
+    const rows = await databaseService.query(
+      'SELECT * FROM user WHERE id = ?',
+      [id]
+    )
+    return rows[0]
+  }
+
+
+
+
   /**
    * Update an existing user in the database.
    *

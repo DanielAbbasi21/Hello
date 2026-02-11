@@ -17,6 +17,7 @@ class Menu {
     console.log('2. Add user')
     console.log('3. Update user')
     console.log('4. Delete user')
+    console.log('6. Show user by id')
     console.log('5. Exit')
   }
 
@@ -62,6 +63,15 @@ class Menu {
         console.log('Exiting the application...')
         return false
         break
+
+      case '6':
+        const idToShow = parseInt(
+          await inputHandler.ask('Enter ID to show: '),
+          10
+        )
+        await userController.showUserById(idToShow)
+        break
+        
 
       default:
         console.log('Invalid option. Please try again.')
