@@ -2,6 +2,7 @@ import express from 'express'
 import logger from 'morgan'
 import { router } from './route/index.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import helmet from "helmet"
 
 export const app = express()
 
@@ -9,6 +10,11 @@ export const app = express()
 if (process.env.NODE_ENV !== 'test') {
   app.use(logger('dev', { immediate: true }))
 }
+
+//use Helmet!
+app.use(helmet())
+
+//reduce fingerprinting
 
 // Use the public folder for static resources
 app.use(express.static('public'))
