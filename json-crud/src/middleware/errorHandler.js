@@ -33,7 +33,8 @@ errorHandler.errorDefault = (err, req, res, next) => {
     process.env.NODE_ENV === 'production'
       ? 'Something went wrong' // Hide error details in production
       : err.message
-
+      
+  console.log(err);
   res.status(statusCode).json({
     status: statusCode,
     message

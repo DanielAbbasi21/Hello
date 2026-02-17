@@ -15,6 +15,9 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(helmet())
 
 //reduce fingerprinting
+app.disable('x-powered-by')
+
+
 
 // Use the public folder for static resources
 app.use(express.static('public'))

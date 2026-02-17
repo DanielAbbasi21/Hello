@@ -21,9 +21,18 @@ class DatabaseService {
     } catch (error) {
       console.error(error)
     }
+  }
 
-    process.on('SIGINT', () => this.closeConnection())
-    process.on('SIGTERM', () => this.closeConnection())
+  /**
+   * Format a sql query.
+   *
+   * @param {string} sql - The SQL to be formatted.
+   * @param {Array} [params=[]] - The parameters for the query.
+   * @param param
+   * @returns {string} as SQL query.
+   */
+  format (sql, param) {
+    return mysql.format(sql, param)
   }
 
   /**
@@ -52,7 +61,6 @@ class DatabaseService {
   async closeConnection () {
     try {
       await this.#connection.end()
-      console.log('Database connection closed.')
     } catch (err) {
       console.error('Error closing the database connection:', err.message)
       throw err
@@ -61,4 +69,3 @@ class DatabaseService {
 }
 
 export default new DatabaseService()
-
