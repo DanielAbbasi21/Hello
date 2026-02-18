@@ -1,4 +1,4 @@
-const port = process.env.PORT || 3030
+const port = process.env.PORT || 3000
 const url = `http://localhost:${port}/api/v1/jwt/init`
 const options = {
   method: 'POST'

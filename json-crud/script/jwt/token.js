@@ -3,7 +3,7 @@ if (process.argv.length != 3) {
   console.error('ERROR. You need to send one argument like this: <jwt token>')
   process.exit(1)
 }
-const port = process.env.PORT || 3030
+const port = process.env.PORT || 3000
 const jwtToken = process.argv[2]
 const url = `http://localhost:${port}/api/v1/jwt/token`
 const options = {

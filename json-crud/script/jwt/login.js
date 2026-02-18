@@ -3,7 +3,7 @@ if (process.argv.length != 4) {
   process.exit(1)
 }
 
-const port = process.env.PORT || 3030
+const port = process.env.PORT || 3000
 const username = process.argv[2]
 const password = process.argv[3]
 const url = `http://localhost:${port}/api/v1/jwt/login`
