@@ -1,73 +1,94 @@
+import TasksModel from '../model/TasksModel.js'
+
 export const controller = {}
 
-const tasks = [
-  { id: 1, title: 'do a backflip', completed: false },
-  { id: 2, title: 'play fotball', completed: true },
-  { id: 3, title: 'go running', completed: false},
-]
-
-controller.getTasks = (req, res) => {
-  res.json(tasks)
+// GET /tasks
+controller.getTasks = async (req, res, next) => {
+  try {
+    const rows = await TasksModel.getAll()
+    res.json(rows)
+  } catch (err) {
+    next(err)
+  }
 }
 
-controller.getTaskById = (req, res) => {
-  const taskId = parseInt(req.params.id)
-  const task = tasks.find(t => t.id === taskId)
-  if (task) {
+// GET /tasks/:id
+controller.getTaskById = async (req, res, next) => {
+  try {
+    const task = await TasksModel.getById(req.params.id)
+    if (!task) return res.status(404).json({ error: 'Task not found' })
     res.json(task)
-  } else {
-    res.status(404).json({ error: 'Task not found' })
+  } catch (err) {
+    next(err)
   }
 }
 
-controller.createTask = (req, res) => {
-  const newTask = req.body
+// POST /tasks
+controller.createTask = async (req, res, next) => {
+  try {
+    const { title, completed = false } = req.body
 
-  // Generate a new ID based on the highest existing ID
-  const newId = tasks.length > 0 
-    ? Math.max(...tasks.map(t => t.id)) + 1 
-    : 1
+    if (!title || typeof title !== 'string') {
+      return res.status(400).json({ error: 'title is required' })
+    }
 
-  // Attach the ID to the task object
-  newTask.id = newId
-
-  tasks.push(newTask)
-  res.status(201).json(newTask)
-}
-
-controller.updateTask = (req, res) => {
-  const taskId = parseInt(req.params.id)
-  const updatedData = req.body
-  const task = tasks.find(t => t.id === taskId)
-  if (task) {
-    Object.assign(task, updatedData)
-    res.json(task)
-  } else {
-    res.status(404).json({ error: 'Task not found' })
+    const id = await TasksModel.create({ title, completed })
+    const created = await TasksModel.getById(id)
+    res.status(201).json(created)
+  } catch (err) {
+    next(err)
   }
 }
 
-controller.replaceTask = (req, res) => {
-  const taskId = parseInt(req.params.id)
-  const newTaskData = req.body
-  const taskIndex = tasks.findIndex(t => t.id === taskId)
-  if (taskIndex !== -1) {
-    newTaskData.id = taskId // Ensure the ID remains the same
-    tasks[taskIndex] = newTaskData
-    res.json(newTaskData)
-  } else {
-    res.status(404).json({ error: 'Task not found' })
+// PATCH /tasks/:id
+controller.updateTask = async (req, res, next) => {
+  try {
+    // PATCH: tillåt att man skickar bara title eller completed
+    const existing = await TasksModel.getById(req.params.id)
+    if (!existing) return res.status(404).json({ error: 'Task not found' })
+
+    const title =
+      req.body.title !== undefined ? req.body.title : existing.title
+
+    const completed =
+      req.body.completed !== undefined ? req.body.completed : existing.completed
+
+    const ok = await TasksModel.update(req.params.id, { title, completed })
+    if (!ok) return res.status(404).json({ error: 'Task not found' })
+
+    const updated = await TasksModel.getById(req.params.id)
+    res.json(updated)
+  } catch (err) {
+    next(err)
   }
 }
 
-controller.deleteTask = (req, res) => {
-  const taskId = parseInt(req.params.id)
-  const taskIndex = tasks.findIndex(t => t.id === taskId)
-  if (taskIndex !== -1) {
-    tasks.splice(taskIndex, 1)
-    res.status(204).json()
-  } else {
-    res.status(404).json({ error: 'Task not found' })
+// PUT /tasks/:id
+controller.replaceTask = async (req, res, next) => {
+  try {
+    const { title, completed = false } = req.body
+
+    if (!title || typeof title !== 'string') {
+      return res.status(400).json({ error: 'title is required' })
+    }
+
+    const ok = await TasksModel.update(req.params.id, { title, completed })
+    if (!ok) return res.status(404).json({ error: 'Task not found' })
+
+    const updated = await TasksModel.getById(req.params.id)
+    res.json(updated)
+  } catch (err) {
+    next(err)
   }
 }
 
+// DELETE /tasks/:id
+controller.deleteTask = async (req, res, next) => {
+  try {
+    const ok = await TasksModel.delete(req.params.id)
+    if (!ok) return res.status(404).json({ error: 'Task not found' })
+    res.status(204).send()
+  } catch (err) {
+    next(err)
+  }
+}
