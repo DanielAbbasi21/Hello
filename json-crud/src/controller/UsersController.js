@@ -58,7 +58,7 @@ class UsersController {
    * @param next
    */
   async createUser (req, res, next) {
-    res.render('users/create')
+    res.render('authenticate/create')
   }
 
   /**

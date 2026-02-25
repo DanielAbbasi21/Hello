@@ -10,6 +10,6 @@ router.get('/profile', auth.isAuthenticatedOrRedirectLogin, controller.profile)
 
 router.get('/logout', controller.logout)
 
-// router.get('/register', controller.register)
-// router.post('/register', controller.registerPost)
+router.get('/register', controller.register)
+router.post('/register', controller.registerPost)
 // router.get('/', controller.XXX)

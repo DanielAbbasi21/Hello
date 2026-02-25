@@ -73,6 +73,31 @@ class AuthenticateController {
       user
     })
   }
+
+  register (req, res) {
+  res.render('authenticate/create')
+}
+
+  async registerPost (req, res) {
+    const { username, email, password, passwordAgain } = req.body
+
+    // ✅ KRAVET: verifiera innan skapande
+    if (password !== passwordAgain) {
+      req.session.flashMessage = 'Passwords did not match!'
+      return res.redirect('/user/register') // eller '/register' beroende på din mount
+    }
+
+    // ✅ Skapa användaren först NÄR de matchar
+    try {
+      await usersModel.addUser(username, password, email)
+      req.session.flashMessage = 'User created!'
+      return res.redirect('/user/login') // eller '/login'
+    } catch (err) {
+      console.error(err)
+      req.session.flashMessage = 'Could not create user.'
+      return res.redirect('/user/register') // eller '/register'
+    }
+  }
 }
 
 export default new AuthenticateController()
