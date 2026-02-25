@@ -1,0 +1,43 @@
+
+
+<style>
+  body { font-family: system-ui, Arial; }
+  .card { padding: 1rem; border: 2px solid #ddd; border-radius: 12px; max-width: 900px; }
+  .muted { opacity: .7; }
+  .friday {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 4px dashed black;
+    border-radius: 16px;
+    animation: shake .12s infinite linear;
+  }
+  @keyframes shake {
+    0% { transform: translate(0,0) rotate(0deg); }
+    25% { transform: translate(1px,-1px) rotate(0.5deg); }
+    50% { transform: translate(-1px,1px) rotate(-0.5deg); }
+    75% { transform: translate(1px,1px) rotate(0.5deg); }
+    100% { transform: translate(-1px,-1px) rotate(-0.5deg); }
+  }
+  .rainbow { font-weight: 900; font-size: 44px; animation: hue 1.5s linear infinite; }
+  @keyframes hue { to { filter: hue-rotate(360deg); } }
+</style>
+
+<div class="card">
+  <h2>Datum: <%= isoDate %></h2>
+  <p>Veckodag: <strong><%= weekdayName %></strong></p>
+
+  <p class="muted">
+    Testa: <code>/friday?date=2026-02-27</code> (fredag) eller <code>/friday?date=2026-02-26</code> (inte fredag)
+    <% if (usingTestDate) { %> — (du testar via querystring) <% } %>
+  </p>
+
+  <% if (isFriday) { %>
+    <div class="friday">
+      <div class="rainbow">🔥 DET ÄR FREDAG!!! 🔥</div>
+      <p>🪩 Kaos-läge aktiverat. 🎉 Konfetti i själen. 🍕 Pizza i hjärtat.</p>
+      <marquee>🎉🪩🔥🥳 F R E D A G !!! 🥳🔥🪩🎉</marquee>
+    </div>
+  <% } else { %>
+    <p>Inte fredag ännu. Håll ut 🙂</p>
+  <% } %>
+</div>
