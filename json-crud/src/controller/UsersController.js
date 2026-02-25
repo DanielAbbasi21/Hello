@@ -1,7 +1,7 @@
 import usersModel from '../model/UsersModel.js'
 
 /**
- * Controller to perform CRUD fo rhte users collection.
+ * Controller to perform CRUD for the users collection.
  *
  * @class
  */
@@ -15,16 +15,12 @@ class UsersController {
    * @param {string} id - The user ID as a string.
    */
   verifyUserId (req, res, next, id) {
-    try {
-      req.userId = usersModel.verifyUserId(id)
-      next()
-    } catch (error) {
-      res.status(400).json({ error: error.message })
-    }
+    req.userId = usersModel.verifyUserId(id)
+    next()
   }
 
   /**
-   * Show all users by fetching data from the model and return the json response.
+   * Show all users by fetching data from the model and render the response.
    *
    * @param req
    * @param res
@@ -32,66 +28,108 @@ class UsersController {
    * @async
    */
   async getAllUsers (req, res, next) {
-  const searchString = req.query.search
-
-  if (searchString) {
-    const users = await usersModel.getUsersBySearchString(searchString)
-    return res.json(users)
+    const data = {
+      'users': await usersModel.getAllUsers()
+    }
+    res.render('users/view_all', data)
   }
-
-  const users = await usersModel.getAllUsers()
-  res.json(users)
-}
-
-
-  //Show single user
-  async getUserById (req, res, next) {
-  const users = await usersModel.getUserById(req.userId)
-
-  if (users.length === 0) {
-    return res.status(404).json({ error: 'User not found' })
-  }
-
-  res.json(users[0])
-}
-
 
   /**
-   * Add a new user to the database.
+   * Get details on one user.
    *
-   * @async
-   * @param {string} name - The name of the user.
-   * @param {string} email - The email of the user.
    * @param req
    * @param res
    * @param next
-   * @param {string} password - The password for the user.
+   * @async
    */
-  async addUser (req, res, next) {
-    const user = req.body
-    const id = await usersModel.addUser(user)
-    res.status(201).json(id)
+  async getUser (req, res, next) {
+    const data = {
+      'user': await usersModel.getUserById(req.userId)
+    }
+    res.render('users/view', data)
   }
 
   /**
-   * Update an existing user in the database.
+   * Present a form to create a new user.
    *
    * @async
-   * @param {number} id - The ID of the user to update.
-   * @param {string} name - The new name of the user.
+   * @param req
+   * @param res
+   * @param next
+   */
+  async createUser (req, res, next) {
+    res.render('users/create')
+  }
+
+  /**
+   * Handle submitted form to create a new user to the database.
+   *
+   * @async
+   * @param req
+   * @param res
+   * @param next
+   * @param {string} name - The name of the user.
+   * @param {string} email - The email of the user.
+   * @param {string} password - The password for the user.
+   */
+  async createUserPost (req, res, next) {
+    const username = req.body.username
+    const email = req.body.email
+    const password = req.body.password
+    const id = await usersModel.addUser(username, password, email)
+
+    req.session.flashMessage = `User with id: ${id} created.` 
+    res.redirect(`./${id}`)
+  }
+
+  /**
+   * Present a form to update an existing user in the database.
+   *
+   * @async
+   * @param req
+   * @param res
+   * @param next
+   */
+  async updateUser (req, res, next) {
+    const data = {
+      'user': await usersModel.getUserById(req.userId)
+    }
+    res.render('users/update', data)
+  }
+
+  /**
+   * Process submitted form and update user in database.
+   *
+   * @async
    * @param req
    * @param res
    * @param next
    * @param {string} email - The new email of the user.
    */
-  async updateUser (req, res, next) {
-    const user = req.body
-    const success = await usersModel.updateUser(req.userId, user)
+  async updateUserPost (req, res, next) {
+    const email = req.body.email
+    const success = await usersModel.updateUser(req.userId, email)
     if (success) {
-      res.json(user)
+      req.session.flashMessage = `User with id: ${req.userId} was updated.` 
+      res.redirect('.')
     } else {
-      res.status(404).json({ error: 'User not found' })
+      throw new Error('User not found')
     }
+  }
+
+  /**
+   * Present a form to delete a user from the database.
+   *
+   * @async
+   * @param req
+   * @param res
+   * @param next
+   */
+  async deleteUser (req, res, next) {
+    const data = {
+      'user': await usersModel.getUserById(req.userId)
+    }
+    res.render('users/delete', data)
   }
 
   /**
@@ -101,15 +139,38 @@ class UsersController {
    * @param req
    * @param res
    * @param next
-   * @param {number} id - The ID of the user to delete.
    */
-  async deleteUser (req, res, next) {
+  async deleteUserPost (req, res, next) {
     const success = await usersModel.deleteUser(req.userId)
     if (success) {
-      res.status(204).json()
+      req.session.flashMessage = `User ${req.userId} deleted.` 
+      res.redirect('..')
     } else {
-      res.status(404).json({ error: 'User not found' })
+      throw new Error('User not found')
     }
+  }
+
+  /**
+   * Search for a user in the database.
+   *
+   * @async
+   * @param req
+   * @param res
+   * @param next
+   */
+  async searchUser (req, res, next) {
+    const search = req.query?.search 
+    let users 
+
+    if (search) {
+      users = await usersModel.searchUser(search)
+    }
+
+    const data = {
+      search,
+      users
+    }
+    res.render('users/search', data)
   }
 }
 

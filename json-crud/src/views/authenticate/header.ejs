@@ -1,0 +1,14 @@
+<h1>Authentication of users with session</h1>
+
+<nav>
+    <% if (!authenticated) { %> 
+    <a href="./user/login">Login</a> 
+    <% } else { %>
+    <span>[ <%= authenticated.username %> ]</span> 
+    <a href="./user/profile">Profile</a> |
+    <a href="./user/logout">Logout</a>
+        <% if (authenticated.role === 'admin') { %>
+        | <a href="./admin">Admin</a>
+        <% } %>
+    <% } %>
+</nav>

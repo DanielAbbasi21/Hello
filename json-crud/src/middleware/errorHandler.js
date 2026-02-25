@@ -24,7 +24,7 @@ errorHandler.notFoundDefault = (req, res, next) => {
  * @param {Function} next Express next function.
  */
 errorHandler.errorDefault = (err, req, res, next) => {
-  if (!process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV !== 'test') {
     console.error(err.stack) // Log the error stack for debugging
   }
 
@@ -33,10 +33,17 @@ errorHandler.errorDefault = (err, req, res, next) => {
     process.env.NODE_ENV === 'production'
       ? 'Something went wrong' // Hide error details in production
       : err.message
-      
-  console.log(err);
-  res.status(statusCode).json({
+
+  const data = {
     status: statusCode,
     message
-  })
+  }
+
+  if (err.statusDescription) {
+    data.statusDescription = err.statusDescription
+  } 
+
+  //res.status(statusCode).json(data)
+  res.status(err.status || 500).render('errors/error', { error: err })
 }
+

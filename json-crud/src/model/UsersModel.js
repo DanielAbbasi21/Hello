@@ -84,6 +84,21 @@ class UsersModel {
   }
 
   /**
+   * Get user from the database.
+   *
+   * @async
+   * @param {number} userId - The id of the user.
+   * @returns {Promise<object>} A user if it exists or false.
+   */
+  async getUserById (userId) {
+    let sql = 'SELECT * FROM ?? WHERE id = ?'
+    const arg = [this.#table, userId]
+    sql = dbs.format(sql, arg)
+    const [result] = await dbs.query(sql)
+    return result === undefined ? false : result
+  }
+
+  /**
    * Add a new user to the database.
    *
    * @async
@@ -106,14 +121,15 @@ class UsersModel {
    * Update an existing user in the database.
    *
    * @async
-   * @param {number} id - The ID of the user to update.
-   * @param {object} user - Details of the user to update.
+   * @param {number} userId - The ID of the user to update.
+   * @param {string} email - The email of the user.
    * @returns {Promise<boolean>} True if the update was successful, false otherwise.
    */
-  async updateUser (id, user) {
-    const { username, email, password } = user
-    const query = 'UPDATE user SET username = ?, email = ?, password = ? WHERE id = ?'
-    const result = await dbs.query(query, [username, email, password, id])
+  async updateUser (userId, email) {
+    let sql = 'UPDATE ?? SET email = ? WHERE id = ?'
+    const arg = [this.#table, email, userId]
+    sql = dbs.format(sql, arg)
+    const result = await dbs.query(sql)
     return result.affectedRows > 0
   }
 
@@ -121,13 +137,33 @@ class UsersModel {
    * Delete a user from the database.
    *
    * @async
-   * @param {number} id - The ID of the user to delete.
+   * @param {number} userId - The ID of the user to delete.
    * @returns {Promise<boolean>} True if the deletion was successful, false otherwise.
    */
-  async deleteUser (id) {
-    const query = 'DELETE FROM user WHERE id = ?'
-    const result = await dbs.query(query, [id])
+  async deleteUser (userId) {
+    let sql = 'DELETE FROM ?? WHERE id = ?'
+    const arg = [this.#table, userId]
+    sql = dbs.format(sql, arg)
+    const result = await dbs.query(sql)
     return result.affectedRows > 0
+  }
+
+  /**
+   * Search for users in the database.
+   *
+   * @async
+   * @param {string} search - String to search for.
+   * @returns {Promise<array>} Array of users matching the search critera.
+   */
+  async searchUser (search) {
+    const searchWildcard = `%${search}%`
+    let sql = 'SELECT id, username, email FROM ?? WHERE id = ? OR username LIKE ? OR email LIKE ?'
+    const arg = [this.#table, search, searchWildcard, searchWildcard]
+    sql = dbs.format(sql, arg)
+    const result = await dbs.query(sql)
+    console.log(sql)
+    console.log(result)
+    return result
   }
 
   /**
@@ -143,17 +179,42 @@ class UsersModel {
     if (!user) {
       throw new Error('User does not exists')
     }
-    
+
     const hashedPassword = user.password
     const success = await bcrypt.compare(password, hashedPassword)
     if (!success) {
-      throw new Error('User and password dows not match')
+      throw new Error('User and password does not match')
     }
 
     const token = jwt.createJwtToken(user.username, user.role, user.email)
     return token
   }
+
+  /**
+   * Login user.
+   *
+   * @async
+   * @param {object} username - The username.
+   * @param {object} password - The password for the username.
+   * @returns {Promise<object>} Object with user details, on success.
+   */
+  async checkUserAndPassword (username, password) {
+    const user = await this.getUser(username)
+    if (!user) {
+      throw new Error('User does not exists')
+    }
+
+    const hashedPassword = user.password
+    const success = await bcrypt.compare(password, hashedPassword)
+    if (!success) {
+      throw new Error('User and password does not match')
+    }
+
+    return {
+      username: user.username,
+      role: user.role
+    }
+  }
 }
 
 export default new UsersModel()
-
