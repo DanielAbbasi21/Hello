@@ -48,9 +48,16 @@ controller.guess = (req, res) => {
  * @param {object} res Express response object.
  */
 controller.guessCheck = (req, res) => {
+   // Se till att spelet är initierat (annars kan high/low aldrig triggas)
   const number = req.session.number
   const lastGuess = parseInt(req.body.guessedNumber)
   const numGuess = req.session.numGuesses ?? 0
+
+  // Måste vara mellan 1 och 100
+  if (lastGuess < 1 || lastGuess > 100) {
+    req.session.flashMessage = 'Guess must be between 1 and 100.'
+    return res.redirect('./guess')
+  }
 
   req.session.numGuesses = numGuess + 1
   req.session.lastGuess = lastGuess
@@ -58,9 +65,9 @@ controller.guessCheck = (req, res) => {
   if (lastGuess === number) {
     req.session.flashMessage = 'CORRECT! You win the game!'
   } else if (lastGuess > number) {
-    req.session.flashMessage = 'To high!'
+    req.session.flashMessage = 'Good guess, but try a lower number.'
   } else if (lastGuess < number) {
-    req.session.flashMessage = 'To low!'
+    req.session.flashMessage = 'Good guess, but try a higher number.'
   }
   res.redirect('./guess')
 }
