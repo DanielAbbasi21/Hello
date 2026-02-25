@@ -5,10 +5,12 @@ if (process.argv.length != 3) {
 
 const API_KEY = process.argv[2]
 
-const url = `http://localhost:${process.env.PORT || 3017}/api/v1/apikey/try3`
+const url = `http://localhost:${process.env.PORT || 3000}/api/v1/apikey/try3`
+
 const body = {
   authorization: API_KEY
 }
+
 const options = {
   method: 'POST',
   headers: {
@@ -20,8 +22,14 @@ const options = {
 console.log(url)
 
 const response = await fetch(url, options)
-const data = await response.json()
 
 console.log(response.status)
-console.log(data)
-// console.log(response.headers)
+
+const contentType = response.headers.get('content-type') || ''
+const text = await response.text()
+
+if (contentType.includes('application/json')) {
+  console.log(JSON.parse(text))
+} else {
+  console.log(text)
+}

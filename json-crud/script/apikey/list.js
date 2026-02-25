@@ -1,5 +1,5 @@
 // Prepare the details for the request
-const url = `http://localhost:${process.env.PORT || 3012}/api/v1/apikey/list`
+const url = `http://localhost:${process.env.PORT || 3000}/api/v1/apikey/list`
 const options = {
   method: 'GET'
 }

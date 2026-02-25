@@ -4,46 +4,39 @@ export const errorHandler = {}
 
 /**
  * Default handler for 404 routes when the resource is not found.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
- * @param {Function} next Express next function.
  */
 errorHandler.notFoundDefault = (req, res, next) => {
   const err = new Error(http.STATUS_CODES[404] || 'Not Found')
   err.status = 404
-  next(err) // Pass the error to the global error handler
+  err.statusDescription = http.STATUS_CODES[404]
+  return next(err)
 }
 
 /**
  * Global error handler.
- *
- * @param {object} err The caught error.
- * @param {object} req Express request object.
- * @param {object} res Express response object.
- * @param {Function} next Express next function.
  */
 errorHandler.errorDefault = (err, req, res, next) => {
   if (process.env.NODE_ENV !== 'test') {
-    console.error(err.stack) // Log the error stack for debugging
+    console.error(err.stack)
   }
 
   const statusCode = err.status || 500
   const message =
     process.env.NODE_ENV === 'production'
-      ? 'Something went wrong' // Hide error details in production
+      ? 'Something went wrong'
       : err.message
 
-  const data = {
-    status: statusCode,
-    message
+  // API -> JSON
+  if (req.originalUrl.startsWith('/api/v1/')) {
+    let type = 'error'
+    if (statusCode === 403) type = 'forbidden'
+    else if (statusCode === 404) type = 'not_found'
+    else if (statusCode === 401) type = 'unauthorized'
+    else if (statusCode === 429) type = 'too_many_requests'
+
+    return res.status(statusCode).json({ type, message })
   }
 
-  if (err.statusDescription) {
-    data.statusDescription = err.statusDescription
-  } 
-
-  //res.status(statusCode).json(data)
-  res.status(err.status || 500).render('errors/error', { error: err })
+  // Web -> EJS
+  return res.status(statusCode).render('errors/error', { error: err })
 }
-

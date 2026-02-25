@@ -1,4 +1,4 @@
-const url = `http://localhost:${process.env.PORT || 3012}/api/v1/apikey/try4`
+const url = `http://localhost:${process.env.PORT || 3000}/api/v1/apikey/try4`
 const options = {
   method: 'GET'
 }

@@ -1,12 +1,10 @@
+import http from 'http'
 import { apikey } from '../model/apikey.js'
 
 export const controller = {}
 
 /**
  * List all the API keys.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
  */
 controller.list = (req, res) => {
   res.setHeader('Content-Type', 'application/json')
@@ -15,10 +13,6 @@ controller.list = (req, res) => {
 
 /**
  * Verify that the API key exists in the query string.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
- * @param next
  */
 controller.verifyQueryString = (req, res, next) => {
   const aKey = req.query.API_KEY || null
@@ -26,35 +20,39 @@ controller.verifyQueryString = (req, res, next) => {
   if (!apikey.verifyKey(aKey)) {
     const err = new Error('You have not supplied a valid API key!')
     err.status = 403
-    next(err)
-  } else if (!apikey.verifyRate(aKey)) {
-    const err = new Error('You have reached your usage rate!')
-    err.status = 403
-    next(err)
+    err.statusDescription = http.STATUS_CODES[err.status]
+    return next(err)
   }
 
-  res.status(200).json({
-    type: 'success',
-    message: 'API key is valid and within usage rate limits.'
+  if (!apikey.verifyRate(aKey)) {
+    const err = new Error('You have reached your usage rate!')
+    err.status = 429
+    err.statusDescription = http.STATUS_CODES[err.status]
+    return next(err)
+  }
+
+  return res.status(200).json({
+    message: 'YES. You supplied a valid key through the query string!'
   })
 }
 
 /**
  * Verify that the API key exists in the header.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
  */
-controller.verifyHeader = (req, res) => {
+controller.verifyHeader = (req, res, next) => {
   const aKey = req.header('Authorization') || null
 
   if (!apikey.verifyKey(aKey)) {
     const err = new Error('You have not supplied a valid API key!')
     err.status = 403
+    err.statusDescription = http.STATUS_CODES[err.status]
     return next(err)
-  } else if (!apikey.verifyRate(aKey)) {
+  }
+
+  if (!apikey.verifyRate(aKey)) {
     const err = new Error('You have reached your usage rate!')
-    err.status = 403
+    err.status = 429
+    err.statusDescription = http.STATUS_CODES[err.status]
     return next(err)
   }
 
@@ -65,20 +63,21 @@ controller.verifyHeader = (req, res) => {
 
 /**
  * Verify that the API key exists in the body.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
  */
-controller.verifyBody = (req, res) => {
-  const aKey = req.body.authorization || null
+controller.verifyBody = (req, res, next) => {
+  const aKey = req.body?.authorization || null
 
   if (!apikey.verifyKey(aKey)) {
     const err = new Error('You have not supplied a valid API key!')
     err.status = 403
+    err.statusDescription = http.STATUS_CODES[err.status]
     return next(err)
-  } else if (!apikey.verifyRate(aKey)) {
+  }
+
+  if (!apikey.verifyRate(aKey)) {
     const err = new Error('You have reached your usage rate!')
-    err.status = 403
+    err.status = 429
+    err.statusDescription = http.STATUS_CODES[err.status]
     return next(err)
   }
 
@@ -89,12 +88,9 @@ controller.verifyBody = (req, res) => {
 
 /**
  * Provide a magic answer.
- *
- * @param {object} req Express request object.
- * @param {object} res Express response object.
  */
 controller.magicAnswer = (req, res) => {
-  res.json({
+  return res.json({
     message: 'YES. The magic answer is 42!'
   })
 }

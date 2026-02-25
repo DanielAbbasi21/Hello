@@ -7,6 +7,9 @@ import { router as guessRoute } from './guessRoute.js'
 import { router as jwtRoute } from './jwtRoute.js'
 import { router as usersRoute } from './usersRoute.js'
 import { router as utilsRoute } from './utilsRoute.js'
+import { router as tasksRoute } from './tasks.js'
+
+
 
 export const router = express.Router()
 
@@ -19,6 +22,7 @@ router.use('/utils', utilsRoute)
 router.use('/api/v1', apikeyRoute)
 router.use('/api/v1', jwtRoute)
 router.use('/api/v1', usersRoute)
+router.use('/api/v1', tasksRoute)
 
 
 

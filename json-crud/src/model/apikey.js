@@ -14,7 +14,13 @@ const theApiKeys = [
     key: crypto.createHash('md5').update('mumin').digest('hex'),
     rate: 3,
     usage: 0
-  }
+  },
+  {
+  description: 'My new development key',
+  key: '123',
+  rate: 10,
+  usage: 0
+}
 ]
 
 /**

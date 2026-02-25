@@ -5,7 +5,7 @@ if (process.argv.length != 3) {
 
 const API_KEY = process.argv[2]
 
-const url = `http://localhost:${process.env.PORT || 3012}/api/v1/apikey/try2`
+const url = `http://localhost:${process.env.PORT || 3000}/api/v1/apikey/try2`
 const options = {
   method: 'POST',
   headers: {
