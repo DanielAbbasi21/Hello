@@ -1,0 +1,34 @@
+<h2>Tasks</h2>
+
+<p><a href="/crud/tasks/create">+ Create task</a></p>
+
+<% if (!tasks || tasks.length === 0) { %>
+  <p>No tasks.</p>
+<% } else { %>
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Completed</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% tasks.forEach(t => { %>
+        <tr>
+          <td><%= t.id %></td>
+          <td><%= t.title %></td>
+          <td><%= t.completed ? 'Yes' : 'No' %></td>
+          <td>
+            <a href="/crud/tasks/<%= t.id %>">View</a> |
+            <a href="/crud/tasks/<%= t.id %>/edit">Edit</a> |
+            <form action="/crud/tasks/<%= t.id %>/delete" method="post" style="display:inline">
+              <button type="submit" onclick="return confirm('Delete task?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } %>

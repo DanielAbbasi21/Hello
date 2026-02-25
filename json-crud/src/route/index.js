@@ -9,7 +9,7 @@ import { router as usersRoute } from './usersRoute.js'
 import { router as utilsRoute } from './utilsRoute.js'
 import { router as tasksRoute } from './tasks.js'
 import { router as fridayRouter } from './fridayRoute.js'
-
+import { router as tasksCrudRouter } from './tasksCrudRoute.js'
 
 
 export const router = express.Router()
@@ -26,4 +26,6 @@ router.use('/api/v1', usersRoute)
 router.use('/api/v1', tasksRoute)
 
 router.use('/friday', fridayRouter)
+
+router.use('/crud/tasks', tasksCrudRouter)
 
